@@ -160,7 +160,9 @@ async function main(buildDir?: string, outDir?: string): Promise<void> {
 	const appPath = path.join(appRoot, appName);
 	const dmgName = `VSCode-darwin-${arch}`;
 	const artifactPath = path.join(outDir, `${dmgName}.dmg`);
-	const backgroundPath = path.join(import.meta.dirname, `dmg-background-${quality}.tiff`);
+	const requestedBackgroundPath = path.join(import.meta.dirname, `dmg-background-${quality}.tiff`);
+	const fallbackBackgroundPath = path.join(import.meta.dirname, 'dmg-background-stable.tiff');
+	const backgroundPath = fs.existsSync(requestedBackgroundPath) ? requestedBackgroundPath : fallbackBackgroundPath;
 	const diskIconPath = path.join(root, 'resources', 'darwin', 'code.icns');
 	let title = 'Code OSS';
 	switch (quality) {
@@ -177,6 +179,14 @@ async function main(buildDir?: string, outDir?: string): Promise<void> {
 
 	if (!fs.existsSync(appPath)) {
 		throw new Error(`App path does not exist: ${appPath}`);
+	}
+
+	if (!fs.existsSync(backgroundPath)) {
+		throw new Error(`DMG background file not found. Tried: ${requestedBackgroundPath} and fallback ${fallbackBackgroundPath}`);
+	}
+
+	if (backgroundPath !== requestedBackgroundPath) {
+		console.warn(`DMG background for quality '${quality}' not found, using fallback: ${fallbackBackgroundPath}`);
 	}
 
 	console.log(`Creating DMG for ${product.nameLong}...`);

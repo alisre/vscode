@@ -133,10 +133,23 @@ jobs:
 
           if [ -d "$COPILOT_VENDOR" ]; then
             if [ "$VSCODE_ARCH" = "arm64" ]; then
-              rm -rf "$COPILOT_VENDOR/audio-capture/x64-darwin" "$COPILOT_VENDOR/ripgrep/x64-darwin"
+              KEEP_A="arm64-darwin"
+              KEEP_B="darwin-arm64"
             else
-              rm -rf "$COPILOT_VENDOR/audio-capture/arm64-darwin" "$COPILOT_VENDOR/ripgrep/arm64-darwin"
+              KEEP_A="x64-darwin"
+              KEEP_B="darwin-x64"
             fi
+
+            find "$COPILOT_VENDOR" -type d \( -name "*darwin*" -o -name "*macos*" \) | while read -r CANDIDATE; do
+              BASENAME="$(basename "$CANDIDATE")"
+              case "$BASENAME" in
+                "$KEEP_A"|"$KEEP_B")
+                  ;;
+                *darwin*|*macos*)
+                  rm -rf "$CANDIDATE"
+                  ;;
+              esac
+            done
           fi
 
       - name: Verify Mach-O architecture
