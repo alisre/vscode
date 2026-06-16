@@ -170,7 +170,7 @@ jobs:
           popd >/dev/null
 
           node build/darwin/create-dmg.ts "$(dirname "$PWD")" "$ARTIFACT_DIR"
-          python3 build/darwin/patch-dmg.py "$ARTIFACT_DIR/VSCode-darwin-${VSCODE_ARCH}.dmg" resources/darwin/disk.icns
+          python3 build/darwin/patch-dmg.py "$ARTIFACT_DIR/VSCode-darwin-${VSCODE_ARCH}.dmg" resources/darwin/code.icns
 
       - name: Upload macOS package artifacts
         uses: actions/upload-artifact@v7
