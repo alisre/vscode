@@ -112,7 +112,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build macOS app
-        run: npm run gulp vscode-darwin-${VSCODE_ARCH}-min-ci
+        run: npm run gulp vscode-darwin-${VSCODE_ARCH}-min
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
