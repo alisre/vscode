@@ -129,16 +129,27 @@ jobs:
           set -e
           APP_ROOT="$(dirname "$PWD")/VSCode-darwin-${VSCODE_ARCH}"
           APP_NAME="$(ls "$APP_ROOT" | head -n 1)"
-          COPILOT_VENDOR="$APP_ROOT/$APP_NAME/Contents/Resources/app/extensions/copilot/node_modules/@anthropic-ai/claude-agent-sdk/vendor"
+          COPILOT_NM="$APP_ROOT/$APP_NAME/Contents/Resources/app/extensions/copilot/node_modules"
 
+          if [ "$VSCODE_ARCH" = "arm64" ]; then
+            REMOVE_ARCH="x64"
+          else
+            REMOVE_ARCH="arm64"
+          fi
+
+          # Remove wrong-architecture @img/sharp-* and @img/sharp-libvips-* packages
+          if [ -d "$COPILOT_NM/@img" ]; then
+            find "$COPILOT_NM/@img" -maxdepth 1 -type d -name "*darwin-${REMOVE_ARCH}*" | while read -r pkg; do
+              echo "Removing wrong-arch package: $pkg"
+              rm -rf "$pkg"
+            done
+          fi
+
+          # Remove wrong-architecture binaries from @anthropic-ai vendor
+          COPILOT_VENDOR="$COPILOT_NM/@anthropic-ai/claude-agent-sdk/vendor"
           if [ -d "$COPILOT_VENDOR" ]; then
-            if [ "$VSCODE_ARCH" = "arm64" ]; then
-              KEEP_A="arm64-darwin"
-              KEEP_B="darwin-arm64"
-            else
-              KEEP_A="x64-darwin"
-              KEEP_B="darwin-x64"
-            fi
+            KEEP_A="${VSCODE_ARCH}-darwin"
+            KEEP_B="darwin-${VSCODE_ARCH}"
 
             find "$COPILOT_VENDOR" -type d \( -name "*darwin*" -o -name "*macos*" \) | while read -r CANDIDATE; do
               BASENAME="$(basename "$CANDIDATE")"
